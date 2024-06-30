@@ -1,3 +1,20 @@
 from django.db import models
 
-# Create your models here.
+class Empresa(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    codigo_sector = models.IntegerField()
+    co2_revenues = models.FloatField()
+    water_revenues = models.FloatField()
+    energy_revenues = models.FloatField()
+    health_policy = models.BooleanField()
+    supply_chain_policy = models.BooleanField()
+    diversity_policy = models.BooleanField()
+    salary_gap = models.FloatField()
+    net_employement_creation = models.FloatField()
+    board_independency_policy = models.BooleanField()
+    board_diversity_policy = models.BooleanField()
+    board_experience_policy = models.BooleanField()
+    renewable_energy = models.FloatField()
+    market_gap = models.FloatField()
+    green_capex = models.BooleanField()

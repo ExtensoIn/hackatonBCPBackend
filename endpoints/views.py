@@ -7,9 +7,12 @@ import joblib
 import pandas as pd
 import numpy as np
 import shap
-import matplotlib.pyplot as plt
+import matplotlib
 import base64
 import io
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 columns = ['CODIGO', 'Scope 1 Estimated Totals To Revenues USD in Million\n(FY0)',
            'Water Use To Revenues USD in million\n(FY0)',
@@ -34,6 +37,7 @@ def create_data(request):
     if request.method == 'POST':
         empresa_data = JSONParser().parse(request)
         empresa_serialized = EmpresaSerializer(data=empresa_data)
+        print(empresa_data)
         if empresa_serialized.is_valid():
             data = pd.DataFrame(np.array([[
                 empresa_serialized.validated_data['sector_code'],
@@ -61,7 +65,6 @@ def create_data(request):
                 'C:\\Users\\jrtta\\OneDrive\\Escritorio\\proyectos '
                 'personales\\python\\hackatonBCPBackend\\model\\random_forest.model')
             predicted = random_forest.predict(scaled_data)
-            print(predicted[0])
             empresa_serialized.save(esg_score=predicted[0])
             res = EmpresaSerializer(Empresa.objects.all().filter(name=empresa_serialized.data['name']), many=True)
             return JsonResponse(res.data, status=200, safe=False)
@@ -91,8 +94,6 @@ def save_shap_plot_as_base64(plot):
 def save_summary_plot_as_base64(shap_values, x_test_scaled, feature_names):
     # Create the summary plot and save to a bytes buffer
     buf = io.BytesIO()
-    print(x_test_scaled)
-    print(columns)
     shap.summary_plot(shap_values, x_test_scaled, feature_names=feature_names, show=False)
     plt.savefig(buf, format='png')
     buf.seek(0)
@@ -100,6 +101,7 @@ def save_summary_plot_as_base64(shap_values, x_test_scaled, feature_names):
 
     # Encode the plot as a base64 string
     plot_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
     return plot_base64
 
 
